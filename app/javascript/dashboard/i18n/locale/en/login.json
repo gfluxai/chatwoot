@@ -1,6 +1,6 @@
 {
   "LOGIN": {
-    "TITLE": "Login to TabloAI",
+    "TITLE": "Login to TabloAI Atendimento",
     "EMAIL": {
       "LABEL": "Email",
       "PLACEHOLDER": "example{'@'}companyname.com",
