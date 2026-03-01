@@ -7,7 +7,7 @@ Rails.application.configure do
   config.action_mailer.default_url_options = { host: ENV['FRONTEND_URL'] } if ENV['FRONTEND_URL'].present?
   # We load certain mailer templates from our database. This ensures changes to it is reflected immediately
   config.action_mailer.perform_caching = false
-  config.action_mailer.perform_deliveries = true
+  config.action_mailer.perform_deliveries = false
   config.action_mailer.raise_delivery_errors = true
 
   # Config related to smtp
