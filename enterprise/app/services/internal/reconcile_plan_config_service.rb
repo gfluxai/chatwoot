@@ -1,4 +1,16 @@
 class Internal::ReconcilePlanConfigService
+  BRANDING_KEYS = %w[
+    INSTALLATION_NAME
+    BRAND_URL
+    WIDGET_BRAND_URL
+    LOGO
+    LOGO_DARK
+    LOGO_THUMBNAIL
+    TERMS_URL
+    PRIVACY_URL
+    DISPLAY_MANIFEST
+  ].freeze
+
   def perform
     remove_premium_config_reset_warning
     return if ChatwootHub.pricing_plan != 'community'
@@ -29,19 +41,23 @@ class Internal::ReconcilePlanConfigService
 
   def premium_config_reset_required?
     premium_config.any? do |config|
-      config = config.with_indifferent_access
-      existing_config = InstallationConfig.find_by(name: config[:name])
-      existing_config&.value != config[:value] if existing_config.present?
+      cfg = config.with_indifferent_access
+      next false if BRANDING_KEYS.include?(cfg[:name])  # ✅ ignora branding
+
+      existing = InstallationConfig.find_by(name: cfg[:name])
+      existing.present? && existing.value != cfg[:value]
     end
   end
 
   def reconcile_premium_config
     premium_config.each do |config|
-      new_config = config.with_indifferent_access
-      existing_config = InstallationConfig.find_by(name: new_config[:name])
-      next if existing_config&.value == new_config[:value]
+      cfg = config.with_indifferent_access
+      next if BRANDING_KEYS.include?(cfg[:name])        # ✅ ignora branding
 
-      existing_config&.update!(value: new_config[:value])
+      existing = InstallationConfig.find_by(name: cfg[:name])
+      next if existing&.value == cfg[:value]
+
+      existing&.update!(value: cfg[:value])
     end
   end
 
