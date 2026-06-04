@@ -25,6 +25,7 @@ import CopilotContainer from 'dashboard/components/copilot/CopilotContainer.vue'
 
 import MobileSidebarLauncher from 'dashboard/components-next/sidebar/MobileSidebarLauncher.vue';
 import { useCallsStore } from 'dashboard/stores/calls';
+import HumanHandoffNotification from 'dashboard/components/widgets/HumanHandoffNotification.vue';
 
 export default {
   components: {
@@ -37,6 +38,7 @@ export default {
     CopilotContainer,
     FloatingCallWidget,
     MobileSidebarLauncher,
+    HumanHandoffNotification,
   },
   setup() {
     const upgradePageRef = ref(null);
@@ -161,6 +163,7 @@ export default {
         />
         <CopilotContainer />
         <FloatingCallWidget v-if="hasActiveCall || hasIncomingCall" />
+        <HumanHandoffNotification />
       </template>
       <AddAccountModal
         :show="showCreateAccountModal"
