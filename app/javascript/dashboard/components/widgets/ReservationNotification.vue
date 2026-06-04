@@ -3,18 +3,13 @@ import { ref, computed } from 'vue';
 import { onMounted, onUnmounted } from 'vue';
 import { emitter } from 'shared/helpers/mitt';
 import { BUS_EVENTS } from 'shared/constants/busEvents';
-import { useRouter } from 'vue-router';
-import { useAccount } from 'dashboard/composables/useAccount';
-import { frontendURL } from 'dashboard/helper/URLHelper';
 
-const router = useRouter();
-const { accountId } = useAccount();
 const queue = ref([]);
 
 const current = computed(() => queue.value[0] ?? null);
 
-const playHandoffSound = () => {
-  const audio = new Audio('/audio/handoff-alert.mp3');
+const playReservationSound = () => {
+  const audio = new Audio('/audio/reservation-alert.mp3');
   audio.volume = 1.0;
   audio.play().catch(() => {});
 };
@@ -23,22 +18,13 @@ const dismiss = () => {
   queue.value.shift();
 };
 
-const openConversation = () => {
-  const item = current.value;
-  dismiss();
-  if (!item?.conversationId || !accountId.value) return;
-  router.push(
-    frontendURL(`accounts/${accountId.value}/conversations/${item.conversationId}`)
-  );
-};
-
-const onHandoff = payload => {
+const onReservation = payload => {
   queue.value.push(payload);
-  playHandoffSound();
+  playReservationSound();
 };
 
-onMounted(() => emitter.on(BUS_EVENTS.TABLO_HUMAN_HANDOFF, onHandoff));
-onUnmounted(() => emitter.off(BUS_EVENTS.TABLO_HUMAN_HANDOFF, onHandoff));
+onMounted(() => emitter.on(BUS_EVENTS.TABLO_NEW_RESERVATION, onReservation));
+onUnmounted(() => emitter.off(BUS_EVENTS.TABLO_NEW_RESERVATION, onReservation));
 </script>
 
 <template>
@@ -50,7 +36,7 @@ onUnmounted(() => emitter.off(BUS_EVENTS.TABLO_HUMAN_HANDOFF, onHandoff));
     >
       <div class="popup-card">
         <div class="popup-icon">
-          <!-- HandHelping (Lucide) -->
+          <!-- CalendarDays (Lucide) -->
           <svg
             width="28"
             height="28"
@@ -61,31 +47,27 @@ onUnmounted(() => emitter.off(BUS_EVENTS.TABLO_HUMAN_HANDOFF, onHandoff));
             stroke-linecap="round"
             stroke-linejoin="round"
           >
-            <path d="M11 12h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 14" />
-            <path d="m7 18 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9" />
-            <path d="m2 13 6 6" />
+            <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+            <line x1="16" x2="16" y1="2" y2="6" />
+            <line x1="8" x2="8" y1="2" y2="6" />
+            <line x1="3" x2="21" y1="10" y2="10" />
+            <path d="M8 14h.01" />
+            <path d="M12 14h.01" />
+            <path d="M16 14h.01" />
+            <path d="M8 18h.01" />
+            <path d="M12 18h.01" />
+            <path d="M16 18h.01" />
           </svg>
         </div>
 
-        <p class="popup-message">Nova solicitação de atendimento humano!</p>
-
-        <p v-if="current.telefone" class="popup-phone">{{ current.telefone }}</p>
-        <p v-if="current.reason" class="popup-reason">{{ current.reason }}</p>
+        <p class="popup-message">Nova reserva recebida!</p>
 
         <p v-if="queue.length > 1" class="popup-queue">
-          +{{ queue.length - 1 }}
-          solicitação{{ queue.length > 2 ? 'ões' : '' }} na fila
+          +{{ queue.length - 1 }} reserva{{ queue.length > 2 ? 's' : '' }} na fila
         </p>
 
         <div class="popup-buttons">
           <button class="btn-outline" @click="dismiss">Dispensar</button>
-          <button
-            v-if="current.conversationId"
-            class="btn-primary"
-            @click="openConversation"
-          >
-            Abrir conversa
-          </button>
         </div>
       </div>
     </div>
@@ -98,7 +80,7 @@ onUnmounted(() => emitter.off(BUS_EVENTS.TABLO_HUMAN_HANDOFF, onHandoff));
   max-width: 24rem;
   margin: 0 1rem;
   border-radius: 0.75rem;
-  border: 2px solid #f97316;
+  border: 2px solid #22c55e;
   background: #1e2330;
   padding: 1.5rem;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
@@ -117,7 +99,7 @@ onUnmounted(() => emitter.off(BUS_EVENTS.TABLO_HUMAN_HANDOFF, onHandoff));
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f97316;
+  background: #22c55e;
   color: white;
 }
 
@@ -128,21 +110,9 @@ onUnmounted(() => emitter.off(BUS_EVENTS.TABLO_HUMAN_HANDOFF, onHandoff));
   margin: 0;
 }
 
-.popup-phone {
-  font-size: 0.9rem;
-  color: #d1d5db;
-  margin: 0;
-}
-
-.popup-reason {
-  font-size: 0.8rem;
-  color: #9ca3af;
-  margin: 0;
-}
-
 .popup-queue {
   font-size: 0.75rem;
-  color: #f97316;
+  color: #22c55e;
   margin: 0;
 }
 
@@ -155,34 +125,18 @@ onUnmounted(() => emitter.off(BUS_EVENTS.TABLO_HUMAN_HANDOFF, onHandoff));
 .btn-outline {
   flex: 1;
   border-radius: 0.5rem;
-  border: 1px solid #6b7280;
+  border: 1px solid #4b5563;
   background: transparent;
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
-  color: white;
+  color: #d1d5db;
   cursor: pointer;
   transition: background 0.15s;
 }
 
 .btn-outline:hover {
   background: #374151;
-}
-
-.btn-primary {
-  flex: 1;
-  border-radius: 0.5rem;
-  background: #f97316;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
   color: white;
-  border: none;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.btn-primary:hover {
-  background: #ea580c;
 }
 
 @keyframes popupZoomIn {
