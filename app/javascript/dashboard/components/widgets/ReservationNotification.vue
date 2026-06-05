@@ -27,54 +27,59 @@ onMounted(() => emitter.on(BUS_EVENTS.TABLO_NEW_RESERVATION, onReservation));
 onUnmounted(() => emitter.off(BUS_EVENTS.TABLO_NEW_RESERVATION, onReservation));
 </script>
 
+<!-- eslint-disable vue/no-bare-strings-in-template -->
 <template>
-  <Teleport to="body">
-    <div
-      v-if="current"
-      class="fixed inset-0 z-[9999] flex items-center justify-center"
-      style="background: rgba(0, 0, 0, 0.6)"
-    >
-      <div class="popup-card">
-        <div class="popup-icon">
-          <!-- CalendarDays (Lucide) -->
-          <svg
-            width="28"
-            height="28"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-            <line x1="16" x2="16" y1="2" y2="6" />
-            <line x1="8" x2="8" y1="2" y2="6" />
-            <line x1="3" x2="21" y1="10" y2="10" />
-            <path d="M8 14h.01" />
-            <path d="M12 14h.01" />
-            <path d="M16 14h.01" />
-            <path d="M8 18h.01" />
-            <path d="M12 18h.01" />
-            <path d="M16 18h.01" />
-          </svg>
-        </div>
+  <div v-show="current" class="tablo-reservation-overlay">
+    <div class="popup-card">
+      <div class="popup-icon">
+        <svg
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+          <line x1="16" x2="16" y1="2" y2="6" />
+          <line x1="8" x2="8" y1="2" y2="6" />
+          <line x1="3" x2="21" y1="10" y2="10" />
+          <path d="M8 14h.01" />
+          <path d="M12 14h.01" />
+          <path d="M16 14h.01" />
+          <path d="M8 18h.01" />
+          <path d="M12 18h.01" />
+          <path d="M16 18h.01" />
+        </svg>
+      </div>
 
-        <p class="popup-message">Nova reserva recebida!</p>
+      <p class="popup-message">Nova reserva recebida!</p>
 
-        <p v-if="queue.length > 1" class="popup-queue">
-          +{{ queue.length - 1 }} reserva{{ queue.length > 2 ? 's' : '' }} na fila
-        </p>
+      <p v-if="queue.length > 1" class="popup-queue">
+        +{{ queue.length - 1 }}
+        {{ queue.length > 2 ? 'reservas' : 'reserva' }} na fila
+      </p>
 
-        <div class="popup-buttons">
-          <button class="btn-outline" @click="dismiss">Dispensar</button>
-        </div>
+      <div class="popup-buttons">
+        <button class="btn-outline" @click="dismiss">Dispensar</button>
       </div>
     </div>
-  </Teleport>
+  </div>
 </template>
 
 <style scoped>
+.tablo-reservation-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+}
+
 .popup-card {
   width: 100%;
   max-width: 24rem;
