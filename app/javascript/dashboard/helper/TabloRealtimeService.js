@@ -21,17 +21,24 @@ export class TabloRealtimeService {
     this.disconnect();
 
     this.accountId = user.account_id;
-    this.supabaseClient = createClient(tabloSupabaseUrl, tabloSupabaseAnonKey);
 
-    const { data: profile, error } = await this.supabaseClient
-      .from('profiles')
-      .select('restaurant_id')
-      .eq('chatwoot_user_id', user.id)
-      .single();
+    let restaurantId;
+    let token;
+    try {
+      const { data } = await window.axios.get(
+        `/api/v1/accounts/${this.accountId}/tablo_token`
+      );
+      restaurantId = data?.restaurant_id;
+      token = data?.token;
+    } catch (error) {
+      return;
+    }
 
-    if (error || !profile?.restaurant_id) return;
+    if (!restaurantId || !token) return;
 
-    const { restaurant_id: restaurantId } = profile;
+    this.supabaseClient = createClient(tabloSupabaseUrl, tabloSupabaseAnonKey, {
+      accessToken: () => Promise.resolve(token),
+    });
 
     await this.ensureHumanHandoffLabel();
 
