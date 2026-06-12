@@ -20,16 +20,24 @@ export class AtendimentoRealtimeService {
     this.disconnect();
 
     this.accountId = user.account_id;
-    this.supabaseClient = createClient(appSupabaseUrl, appSupabaseAnonKey);
 
-    const { data: channels, error } = await this.supabaseClient
-      .from('channels')
-      .select('organization_id')
-      .eq('chatwoot_user_id', String(user.id))
-      .limit(1);
+    let organizationId;
+    let token;
+    try {
+      const { data } = await window.axios.get(
+        `/api/v1/accounts/${this.accountId}/atendimento_token`
+      );
+      organizationId = data?.organization_id;
+      token = data?.token;
+    } catch (error) {
+      return;
+    }
 
-    const organizationId = channels?.[0]?.organization_id;
-    if (error || !organizationId) return;
+    if (!organizationId || !token) return;
+
+    this.supabaseClient = createClient(appSupabaseUrl, appSupabaseAnonKey, {
+      accessToken: () => Promise.resolve(token),
+    });
 
     await this.ensureHumanHandoffLabel();
 
