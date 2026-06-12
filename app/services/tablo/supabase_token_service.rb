@@ -40,10 +40,19 @@ class Tablo::SupabaseTokenService
       return
     end
 
-    JSON.parse(response.body).first&.dig('restaurant_id')
+    JSON.parse(decoded_body(response)).first&.dig('restaurant_id')
   rescue StandardError => e
     Rails.logger.error("Tablo::SupabaseTokenService restaurant lookup failed: #{e.message}")
     nil
+  end
+
+  # HTTParty/Net::HTTP sometimes returns the raw gzip bytes in `body`
+  # without decompressing, even though Content-Encoding says gzip.
+  def decoded_body(response)
+    body = response.body
+    return body unless response.headers['content-encoding'].to_s.include?('gzip')
+
+    Zlib::GzipReader.new(StringIO.new(body)).read
   end
 
   def build_token(restaurant_id)
