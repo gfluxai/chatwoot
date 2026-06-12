@@ -33,9 +33,14 @@ class Tablo::SupabaseTokenService
       headers: supabase_headers
     )
 
-    return unless response.success?
+    unless response.success?
+      Rails.logger.error(
+        "Tablo::SupabaseTokenService restaurant lookup failed: HTTP #{response.code}, body=#{response.body}"
+      )
+      return
+    end
 
-    response.parsed_response.first&.dig('restaurant_id')
+    JSON.parse(response.body).first&.dig('restaurant_id')
   rescue StandardError => e
     Rails.logger.error("Tablo::SupabaseTokenService restaurant lookup failed: #{e.message}")
     nil
