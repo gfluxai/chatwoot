@@ -2,7 +2,7 @@
 # dashboard can talk to the Tablo Supabase project (Realtime + REST)
 # without exposing the service_role key to the browser.
 class Tablo::SupabaseTokenService
-  TOKEN_EXPIRY = 12.hours
+  TOKEN_EXPIRY = 7.days
 
   def initialize(user:)
     @user = user
