@@ -47,6 +47,7 @@
     "@scmmishra/pico-search": "0.5.4",
     "@sentry/vue": "^8.55.0",
     "@sindresorhus/slugify": "2.2.1",
+    "@supabase/supabase-js": "^2.107.0",
     "@tailwindcss/typography": "^0.5.15",
     "@tanstack/vue-table": "^8.20.5",
     "@twilio/voice-sdk": "^2.12.4",

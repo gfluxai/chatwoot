@@ -5,6 +5,7 @@ import {
 } from '../constants/appEvents';
 import AnalyticsHelper from './AnalyticsHelper';
 import DashboardAudioNotificationHelper from './AudioAlerts/DashboardAudioNotificationHelper';
+import AtendimentoRealtimeService from './AtendimentoRealtimeService';
 import { emitter } from 'shared/helpers/mitt';
 
 export const initializeAnalyticsEvents = () => {
@@ -39,6 +40,7 @@ export const initializeChatwootEvents = () => {
     if (window.$chatwoot) {
       window.$chatwoot.reset();
     }
+    AtendimentoRealtimeService.disconnect();
   });
   emitter.on(CHATWOOT_SET_USER, ({ user }) => {
     if (window.$chatwoot) {
@@ -56,5 +58,6 @@ export const initializeChatwootEvents = () => {
     }
 
     initializeAudioAlerts(user);
+    AtendimentoRealtimeService.connect(user);
   });
 };
