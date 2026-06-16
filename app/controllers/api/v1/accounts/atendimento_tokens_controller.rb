@@ -1,12 +1,12 @@
 class Api::V1::Accounts::AtendimentoTokensController < Api::V1::Accounts::BaseController
   def show
-    @token = Atendimento::SupabaseTokenService.new(user: current_user).generate
+    @atendimento_token = Atendimento::SupabaseTokenService.new(user: current_user).generate
 
-    if @token.blank?
+    if @atendimento_token.blank?
       head :not_found
       return
     end
 
-    render json: @token
+    render json: @atendimento_token
   end
 end
