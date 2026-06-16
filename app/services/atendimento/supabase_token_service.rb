@@ -33,12 +33,24 @@ class Atendimento::SupabaseTokenService
       headers: supabase_headers
     )
 
-    return unless response.success?
+    unless response.success?
+      Rails.logger.error(
+        "Atendimento::SupabaseTokenService organization lookup failed: HTTP #{response.code}, body=#{response.body}"
+      )
+      return
+    end
 
-    response.parsed_response.first&.dig('organization_id')
+    JSON.parse(decoded_body(response)).first&.dig('organization_id')
   rescue StandardError => e
     Rails.logger.error("Atendimento::SupabaseTokenService organization lookup failed: #{e.message}")
     nil
+  end
+
+  def decoded_body(response)
+    body = response.body
+    return body unless response.headers['content-encoding'].to_s.include?('gzip')
+
+    Zlib::GzipReader.new(StringIO.new(body)).read
   end
 
   def build_token(organization_id)
