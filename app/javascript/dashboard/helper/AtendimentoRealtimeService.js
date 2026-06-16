@@ -75,19 +75,17 @@ export class AtendimentoRealtimeService {
       const wasHuman = payload.old?.stage === 'human';
       const isHuman = payload.new?.stage === 'human';
 
-      if (
-        isHuman &&
-        !wasHuman &&
-        payload.new?.handoff_reason !== 'Humano Assumiu Conversa'
-      ) {
-        emitter.emit(BUS_EVENTS.HUMAN_HANDOFF, {
-          id: payload.new.id,
-          telefone: payload.new.contact_phone,
-          contactName: payload.new.contact_name,
-          reason: payload.new.handoff_reason,
-          conversationId,
-        });
+      if (isHuman && !wasHuman) {
         this.addHumanLabel(conversationId);
+        if (payload.new?.handoff_reason !== 'Humano Assumiu Conversa') {
+          emitter.emit(BUS_EVENTS.HUMAN_HANDOFF, {
+            id: payload.new.id,
+            telefone: payload.new.contact_phone,
+            contactName: payload.new.contact_name,
+            reason: payload.new.handoff_reason,
+            conversationId,
+          });
+        }
       } else if (!isHuman && wasHuman) {
         this.removeHumanLabel(conversationId);
       }
