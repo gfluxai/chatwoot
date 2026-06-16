@@ -50,7 +50,11 @@ export class AtendimentoRealtimeService {
       const wasHuman = payload.old?.stage === 'human';
       const isHuman = payload.new?.stage === 'human';
 
-      if (isHuman && !wasHuman) {
+      if (
+        isHuman &&
+        !wasHuman &&
+        payload.new?.handoff_reason !== 'Humano Assumiu Conversa'
+      ) {
         emitter.emit(BUS_EVENTS.HUMAN_HANDOFF, {
           id: payload.new.id,
           telefone: payload.new.contact_phone,
