@@ -15,7 +15,17 @@ export class AtendimentoRealtimeService {
 
   async connect(user) {
     const { appSupabaseUrl, appSupabaseAnonKey } = window.chatwootConfig || {};
-    if (!appSupabaseUrl || !appSupabaseAnonKey || !user?.id) return;
+    // eslint-disable-next-line no-console
+    console.log('[AtendimentoRealtime] connect called', {
+      appSupabaseUrl: !!appSupabaseUrl,
+      appSupabaseAnonKey: !!appSupabaseAnonKey,
+      userId: user?.id,
+    });
+    if (!appSupabaseUrl || !appSupabaseAnonKey || !user?.id) {
+      // eslint-disable-next-line no-console
+      console.warn('[AtendimentoRealtime] missing config or user, aborting');
+      return;
+    }
 
     this.disconnect();
 
@@ -29,11 +39,24 @@ export class AtendimentoRealtimeService {
       );
       organizationId = data?.organization_id;
       token = data?.token;
+      // eslint-disable-next-line no-console
+      console.log('[AtendimentoRealtime] token response', {
+        organizationId,
+        hasToken: !!token,
+      });
     } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('[AtendimentoRealtime] token fetch error', error);
       return;
     }
 
-    if (!organizationId || !token) return;
+    if (!organizationId || !token) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        '[AtendimentoRealtime] no organizationId or token, aborting'
+      );
+      return;
+    }
 
     this.supabaseClient = createClient(appSupabaseUrl, appSupabaseAnonKey, {
       accessToken: () => Promise.resolve(token),
@@ -44,6 +67,8 @@ export class AtendimentoRealtimeService {
     // A tabela conversations é a linha mestre, atualizada a cada mensagem,
     // então só agimos quando o stage realmente transiciona de/para 'human'.
     const onConversationStageChange = payload => {
+      // eslint-disable-next-line no-console
+      console.log('[AtendimentoRealtime] conversations change', payload);
       const conversationId = Number(payload.new?.chatwoot_conversation_id);
       if (!conversationId) return;
 
@@ -90,7 +115,14 @@ export class AtendimentoRealtimeService {
         },
         onConversationStageChange
       )
-      .subscribe();
+      .subscribe((status, err) => {
+        // eslint-disable-next-line no-console
+        console.log(
+          '[AtendimentoRealtime] subscription status',
+          status,
+          err || ''
+        );
+      });
 
     this.channels = [conversationsChannel];
   }
