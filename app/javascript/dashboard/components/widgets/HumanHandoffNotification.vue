@@ -14,10 +14,12 @@ const queue = ref([]);
 
 const current = computed(() => queue.value[0] ?? null);
 
+const handoffAudio = new Audio('/audio/handoff-alert.mp3');
+handoffAudio.volume = 1.0;
+
 const playHandoffSound = () => {
-  const audio = new Audio('/audio/handoff-alert.mp3');
-  audio.volume = 1.0;
-  audio.play().catch(() => {});
+  handoffAudio.currentTime = 0;
+  handoffAudio.play().catch(() => {});
 };
 
 const dismiss = () => {
@@ -40,7 +42,10 @@ const onHandoff = payload => {
   playHandoffSound();
 };
 
-onMounted(() => emitter.on(BUS_EVENTS.HUMAN_HANDOFF, onHandoff));
+onMounted(() => {
+  handoffAudio.load();
+  emitter.on(BUS_EVENTS.HUMAN_HANDOFF, onHandoff);
+});
 onUnmounted(() => emitter.off(BUS_EVENTS.HUMAN_HANDOFF, onHandoff));
 </script>
 
