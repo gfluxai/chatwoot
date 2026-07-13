@@ -41,6 +41,29 @@ const emit = defineEmits(['sendMessage', 'resetTemplate', 'back']);
 
 const { t } = useI18n();
 
+const PREDEFINED_MEDIA_URLS = {
+  manual_welcome: [
+    {
+      label: 'Guest Manual (EN)',
+      url: 'https://wbfsgticvkamawrtkxws.supabase.co/storage/v1/object/public/whatsapp-template-documents/Guest-Manual.pdf',
+    },
+    {
+      label: 'Hóspede Manual (PT)',
+      url: 'https://wbfsgticvkamawrtkxws.supabase.co/storage/v1/object/public/whatsapp-template-documents/Hospede-Manual.pdf',
+    },
+  ],
+  manual_boasvindas: [
+    {
+      label: 'Hóspede Manual (PT)',
+      url: 'https://wbfsgticvkamawrtkxws.supabase.co/storage/v1/object/public/whatsapp-template-documents/Hospede-Manual.pdf',
+    },
+    {
+      label: 'Guest Manual (EN)',
+      url: 'https://wbfsgticvkamawrtkxws.supabase.co/storage/v1/object/public/whatsapp-template-documents/Guest-Manual.pdf',
+    },
+  ],
+};
+
 const processedParams = ref({});
 
 const languageLabel = computed(() => {
@@ -75,6 +98,10 @@ const formatType = computed(() => {
 const isDocumentTemplate = computed(() => {
   return headerComponent.value?.format?.toLowerCase() === 'document';
 });
+
+const predefinedUrls = computed(
+  () => PREDEFINED_MEDIA_URLS[props.template?.name] ?? []
+);
 
 const hasVariables = computed(() => {
   return bodyText.value?.match(/{{([^}]+)}}/g) !== null;
@@ -224,7 +251,24 @@ defineExpose({
           }}
         </p>
         <div class="flex items-center mb-2.5">
+          <select
+            v-if="predefinedUrls.length"
+            :value="processedParams.header?.media_url || ''"
+            class="flex-1 h-10 px-3 py-2.5 text-sm rounded-lg bg-n-alpha-black2 outline outline-1 outline-offset-[-1px] outline-n-weak text-n-slate-12 focus:outline-n-brand border-none appearance-none cursor-pointer"
+            @change="e => updateMediaUrl(e.target.value)"
+          >
+            <!-- eslint-disable-next-line vue/no-bare-strings-in-template, @intlify/vue-i18n/no-raw-text -->
+            <option value="" disabled>Selecionar documento...</option>
+            <option
+              v-for="item in predefinedUrls"
+              :key="item.url"
+              :value="item.url"
+            >
+              {{ item.label }}
+            </option>
+          </select>
           <Input
+            v-else
             :model-value="processedParams.header?.media_url || ''"
             type="url"
             class="flex-1"
