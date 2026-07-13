@@ -47,19 +47,11 @@ const PREDEFINED_MEDIA_URLS = {
       label: 'Guest Manual (EN)',
       url: 'https://wbfsgticvkamawrtkxws.supabase.co/storage/v1/object/public/whatsapp-template-documents/Guest-Manual.pdf',
     },
-    {
-      label: 'Hóspede Manual (PT)',
-      url: 'https://wbfsgticvkamawrtkxws.supabase.co/storage/v1/object/public/whatsapp-template-documents/Hospede-Manual.pdf',
-    },
   ],
   manual_boas_vindas: [
     {
       label: 'Hóspede Manual (PT)',
       url: 'https://wbfsgticvkamawrtkxws.supabase.co/storage/v1/object/public/whatsapp-template-documents/Hospede-Manual.pdf',
-    },
-    {
-      label: 'Guest Manual (EN)',
-      url: 'https://wbfsgticvkamawrtkxws.supabase.co/storage/v1/object/public/whatsapp-template-documents/Guest-Manual.pdf',
     },
   ],
 };
@@ -145,13 +137,6 @@ const v$ = useVuelidate(
   { processedParams }
 );
 
-const initializeTemplateParameters = () => {
-  processedParams.value = buildTemplateParameters(
-    props.template,
-    hasMediaHeader.value
-  );
-};
-
 const updateMediaUrl = value => {
   processedParams.value.header ??= {};
   processedParams.value.header.media_url = value;
@@ -160,6 +145,16 @@ const updateMediaUrl = value => {
 const updateMediaName = value => {
   processedParams.value.header ??= {};
   processedParams.value.header.media_name = value;
+};
+
+const initializeTemplateParameters = () => {
+  processedParams.value = buildTemplateParameters(
+    props.template,
+    hasMediaHeader.value
+  );
+  if (predefinedUrls.value.length === 1) {
+    updateMediaUrl(predefinedUrls.value[0].url);
+  }
 };
 
 const sendMessage = () => {
@@ -252,7 +247,7 @@ defineExpose({
         </p>
         <div class="flex items-center mb-2.5">
           <select
-            v-if="predefinedUrls.length"
+            v-if="predefinedUrls.length > 1"
             :value="processedParams.header?.media_url || ''"
             class="flex-1 h-10 px-3 py-2.5 text-sm rounded-lg bg-n-alpha-black2 outline outline-1 outline-offset-[-1px] outline-n-weak text-n-slate-12 focus:outline-n-brand border-none appearance-none cursor-pointer"
             @change="e => updateMediaUrl(e.target.value)"
@@ -267,6 +262,12 @@ defineExpose({
               {{ item.label }}
             </option>
           </select>
+          <div
+            v-else-if="predefinedUrls.length === 1"
+            class="flex-1 h-10 px-3 py-2.5 text-sm rounded-lg bg-n-alpha-black2 outline outline-1 outline-offset-[-1px] outline-n-weak text-n-slate-11 flex items-center"
+          >
+            {{ predefinedUrls[0].label }}
+          </div>
           <Input
             v-else
             :model-value="processedParams.header?.media_url || ''"
