@@ -52,7 +52,7 @@ const PREDEFINED_MEDIA_URLS = {
       url: 'https://wbfsgticvkamawrtkxws.supabase.co/storage/v1/object/public/whatsapp-template-documents/Hospede-Manual.pdf',
     },
   ],
-  manual_boasvindas: [
+  manual_boas_vindas: [
     {
       label: 'Hóspede Manual (PT)',
       url: 'https://wbfsgticvkamawrtkxws.supabase.co/storage/v1/object/public/whatsapp-template-documents/Hospede-Manual.pdf',
